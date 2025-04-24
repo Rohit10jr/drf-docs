@@ -40,6 +40,7 @@ router.register(r'users', UserViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
+    path('api/', include('quickstart.urls')),
     # /api-auth/login/ and /api-auth/logout/ are added by rest_framework.urls by using the SessionAuthentication class in Django REST Framework.
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
