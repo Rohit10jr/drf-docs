@@ -43,5 +43,9 @@ urlpatterns = [
     path('api/', include('quickstart.urls')),
     path('', include('snippets.urls')),
     # /api-auth/login/ and /api-auth/logout/ are added by rest_framework.urls by using the SessionAuthentication class in Django REST Framework.
-    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+]
+
+urlpatterns += [
+    # path('api-auth/', include('rest_framework.urls')),
 ]
