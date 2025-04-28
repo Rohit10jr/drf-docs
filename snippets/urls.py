@@ -80,7 +80,7 @@ urlpatterns = format_suffix_patterns([
 # Using Routers
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
+from rest_framework.schemas import get_schema_view
 from snippets import views
 
 # Create a router and register our ViewSets with it.
@@ -92,3 +92,9 @@ router.register(r'users', views.UserViewSet, basename='user')
 urlpatterns = [
     path('', include(router.urls)),
 ]
+
+urlpatterns +=[path('openapi/', get_schema_view(
+        title="My API",
+        description="API for all endpoints",
+        version="1.0.0"
+    ), name='openapi-schema'),]
