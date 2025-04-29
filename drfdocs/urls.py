@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
+from rest_framework.exceptions import server_error, bad_request
 
-
+# handler400 = bad_request     # For 400 Bad Request
+# handler500 = server_error    # For 500 Internal Server Error
 
 # Serializers define the API representation.
 class UserSerializer(serializers.HyperlinkedModelSerializer):
