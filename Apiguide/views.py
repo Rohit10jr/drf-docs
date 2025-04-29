@@ -11,14 +11,13 @@ from django.http import HttpResponse, Http404
 from django.views import View
 from rest_framework.generics import CreateAPIView
 from rest_framework.exceptions import APIException
-<<<<<<< HEAD
-=======
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.metadata import SimpleMetadata
 from rest_framework import viewsets
 from rest_framework.decorators import action
->>>>>>> e70f901 (Apiguide - metadata)
+from Apiguide.utils.negotiation import IgnoreClientContentNegotiation
+
 # Create your views here.
 
 
@@ -133,3 +132,16 @@ class MinimalExampleView(APIView):
         """get for metadata."""
         
         return Response({"message": "Using minimal metadata!"})
+
+
+# content negotiation
+class NoNegotiationView(APIView):
+    """
+    An example view that does not perform content negotiation.
+    """
+    content_negotiation_class = IgnoreClientContentNegotiation
+
+    def get(self, request, format=None):
+        return Response({
+            'accepted media type': request.accepted_renderer.media_type
+        })
