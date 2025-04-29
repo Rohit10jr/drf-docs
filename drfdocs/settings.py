@@ -145,7 +145,9 @@ REST_FRAMEWORK = {
     ], 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5, 
-    'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
+    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata'
+    # 'DEFAULT_METADATA_CLASS': 'Apiguide.utils.metadata.MinimalMetadata'
 }
 
 

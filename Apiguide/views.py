@@ -11,6 +11,14 @@ from django.http import HttpResponse, Http404
 from django.views import View
 from rest_framework.generics import CreateAPIView
 from rest_framework.exceptions import APIException
+<<<<<<< HEAD
+=======
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.metadata import SimpleMetadata
+from rest_framework import viewsets
+from rest_framework.decorators import action
+>>>>>>> e70f901 (Apiguide - metadata)
 # Create your views here.
 
 
@@ -21,6 +29,12 @@ class ServiceUnavailable(APIException):
 
 
 class BookList(generics.ListAPIView):
+
+    # metadata_class = SimpleMetadata
+    """
+    Returns a list of books or creates a new one.
+    """
+
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
@@ -77,3 +91,45 @@ class BookCreateView(CreateView):
         return super().form_valid(form)
     
 
+
+
+# Meta data apiguide
+class MyCustomView(APIView):
+    metadata_class = SimpleMetadata
+
+    def get(self, request, format=None):
+        return Response({"message": "Hello world"})
+    
+
+class GlobalMetadataView(APIView):
+    def get(self, request, format=None):
+        return Response({"message": "Global metadata is used."})
+    
+
+class PerViewMetadataView(APIView):
+    metadata_class = SimpleMetadata
+
+    def get(self, request, format=None):
+        # """get for metadata."""
+        return Response({"message": "This view uses per-view metadata."})
+    
+
+class SchemaViewSet(viewsets.ViewSet):
+    metadata_class = SimpleMetadata
+
+    @action(methods=['get'], detail=False)
+    def api_schema(self, request):
+        meta = self.metadata_class()
+        data = meta.determine_metadata(request, self)
+        return Response(data)
+    
+
+class MinimalExampleView(APIView):
+
+    def get_view_description(self, html=False):
+        return "Custom description for this Minimal endpoint"
+    
+    def get(self, request, format=None):
+        """get for metadata."""
+        
+        return Response({"message": "Using minimal metadata!"})
