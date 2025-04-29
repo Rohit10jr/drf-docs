@@ -145,3 +145,12 @@ class NoNegotiationView(APIView):
         return Response({
             'accepted media type': request.accepted_renderer.media_type
         })
+
+
+# format suffixes
+class CommentList(APIView):
+    def get(self, request, format=None):
+        return Response({"message": "List of comments"})
+
+    def post(self, request, format=None):
+        return Response({"message": "Comment created"})

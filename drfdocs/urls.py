@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from rest_framework.exceptions import server_error, bad_request
+from rest_framework.urlpatterns import format_suffix_patterns
+
 
 # handler400 = bad_request     # For 400 Bad Request
 # handler500 = server_error    # For 500 Internal Server Error
@@ -37,7 +39,7 @@ class UserViewSet(viewsets.ModelViewSet):
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
-
+from Apiguide import urls as apiguide_urls
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
@@ -45,11 +47,15 @@ urlpatterns = [
     # path('', include(router.urls)),
     path('api/', include('quickstart.urls')),
     path('api/', include('Apiguide.urls')),
+    # *apiguide_urls.urlpatterns,
     path('', include('snippets.urls')),
     # /api-auth/login/ and /api-auth/logout/ are added by rest_framework.urls by using the SessionAuthentication class in Django REST Framework.
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
-urlpatterns += [
-    # path('api-auth/', include('rest_framework.urls')),
-]
+# urlpatterns += [
+#     # path('api-auth/', include('rest_framework.urls')),
+# ]
+
+
+# urlpatterns = format_suffix_patterns(urlpatterns)
