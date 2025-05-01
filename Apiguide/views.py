@@ -222,3 +222,30 @@ class HelloView(APIView):
     )
     def get(self, request):
         return Response({"message": "Hello World"})
+    
+
+from rest_framework.versioning import QueryParameterVersioning, URLPathVersioning
+
+# versioning
+
+class ExampleQueryVersioning(QueryParameterVersioning):
+# class ExampleQueryVersioning(URLPathVersioning):
+    default_version = 'v1'
+    allowed_versions = ['1.0', '2.0']
+    version_param = 'v'
+
+
+class QueryVersionAPI(APIView):
+    # versioning_class = QueryParameterVersioning
+    versioning_class = ExampleQueryVersioning
+
+    def get(self, request):
+        return Response({'version': request.version, "message": "this is query versioning"})
+
+class DefaultVersionAPI(APIView):
+
+    def get(self, request, *args, **kwargs):
+        return Response({
+            'version': request.version,
+            'message': 'Hello from DefaultVersionAPI'
+        })

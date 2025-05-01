@@ -158,6 +158,18 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 10,
       'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
+
+    # versioning
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+    # 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.QueryParameterVersioning',
+    # 'DEFAULT_VERSION': '3.0',
+    # 'ALLOWED_VERSIONS': ['3.0', '4.0'],
+    # 'ALLOWED_VERSIONS': ['v1', 'v2'],
+    # 'VERSION_PARAM': 'v'
+    # 'DEFAULT_VERSION': '1.0',  # Default version if none is provided
+    # 'ALLOWED_VERSIONS': ['1.0', '2.0'],  # Allowed versions
+    # 'VERSION_PARAM': 'v',  # Version query parameter (useful for URLParamVersioning)
+
 }
 
 

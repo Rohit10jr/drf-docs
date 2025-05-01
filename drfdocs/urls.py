@@ -51,7 +51,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', include(router.urls)),
     path('api/', include('quickstart.urls')),
-    path('api/', include('Apiguide.urls')),
     # *apiguide_urls.urlpatterns,
     path('', include('snippets.urls')),
     # /api-auth/login/ and /api-auth/logout/ are added by rest_framework.urls by using the SessionAuthentication class in Django REST Framework.
@@ -73,6 +72,11 @@ urlpatterns = [
 
     # ReDoc UI
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
+
+    path('api/', include('Apiguide.urls')),
+    # path('api/v1/', include(('Apiguide.urls', 'Apiguide'), namespace='v1')),
+    # path('api/v2/', include(('Apiguide.urls', 'Apiguide'), namespace='v2')),
 
 ]
 
