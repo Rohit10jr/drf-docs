@@ -143,12 +143,17 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
         # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ], 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5, 
     'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
-    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata'
+    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
     # 'DEFAULT_METADATA_CLASS': 'Apiguide.utils.metadata.MinimalMetadata'
     # 'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'myapp.negotiation.IgnoreClientContentNegotiation',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5, 
+    # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.CustomPageNumberPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.StandardResultsSetPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.ProductCursorPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 10,
 }
 
 

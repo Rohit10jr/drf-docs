@@ -18,6 +18,10 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from Apiguide.utils.negotiation import IgnoreClientContentNegotiation
 
+from Apiguide.utils.pagination import StandardResultsSetPagination, CustomLimitOffsetPagination, ProductCursorPagination,CustomPagination
+from .models import Product
+from .serializers import ProductSerializer
+
 # Create your views here.
 
 
@@ -154,3 +158,25 @@ class CommentList(APIView):
 
     def post(self, request, format=None):
         return Response({"message": "Comment created"})
+    
+
+# pagination
+
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    # queryset = Product.objects.all().order_by('created_at')
+    serializer_class = ProductSerializer
+    # pagination_class = StandardResultsSetPagination
+    # pagination_class = CustomLimitOffsetPagination
+    # pagination_class = ProductCursorPagination
+    pagination_class = CustomPagination
+
+
+class ProductListCreateView(generics.ListCreateAPIView):
+    queryset = Product.objects.all().order_by('created_at')
+    serializer_class = ProductSerializer
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(self.request.data, list):
+            kwargs['many'] = True
+        return super().get_serializer(*args, **kwargs)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Book
+from .models import Book, Product
 from rest_framework.reverse import reverse
 from django.urls import reverse_lazy
 
@@ -29,3 +29,18 @@ class BookSerializer(serializers.ModelSerializer):
             'description': "Description must be at least 3 characters long."
         })
         return data
+    
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    # # This ensures it can handle both single and multiple objects
+    # def to_internal_value(self, data):
+    #     if isinstance(data, list):
+    #         return [super().to_internal_value(item) for item in data]
+    #     return super().to_internal_value(data)
+
+

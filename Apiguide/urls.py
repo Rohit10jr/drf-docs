@@ -2,7 +2,7 @@ from django.urls import path, include
 from .views import BookList, BookDetail, BookCreateView, BookCreateViewApi, BookCreateViewApi
 from .views import BookList, BookDetail, BookCreateView, BookCreateViewApi, BookCreateViewApi, GlobalMetadataView, PerViewMetadataView, SchemaViewSet, MinimalExampleView, NoNegotiationView, CommentList
 from rest_framework.routers import DefaultRouter
-from .views import SchemaViewSet
+from .views import SchemaViewSet, ProductListCreateView, ProductListView
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
@@ -15,6 +15,8 @@ urlpatterns = [
     path('minimal/', MinimalExampleView.as_view()),
     path('no-negotiation/', NoNegotiationView.as_view()),
     path('comments/', CommentList.as_view(), name='comment-list'),
+    path('pagedefault/', ProductListCreateView.as_view(), name='product-list-create'),
+    path('pagecustom/', ProductListView.as_view(), name='product-list-create'),
 
 ]
 
