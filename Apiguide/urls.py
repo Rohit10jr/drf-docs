@@ -2,7 +2,7 @@ from django.urls import path, include
 from .views import BookList, BookDetail, BookCreateView, BookCreateViewApi, BookCreateViewApi
 from .views import BookList, BookDetail, BookCreateView, BookCreateViewApi, BookCreateViewApi, GlobalMetadataView, PerViewMetadataView, SchemaViewSet, MinimalExampleView, NoNegotiationView, CommentList
 from rest_framework.routers import DefaultRouter
-from .views import SchemaViewSet, ProductListCreateView, ProductListView, HelloView, DefaultVersionAPI, QueryVersionAPI, RequestInspectorView
+from .views import SchemaViewSet, ProductListCreateView, ProductListView, HelloView, DefaultVersionAPI, QueryVersionAPI, RequestInspectorView, hello_world, hello_world_2, hello_world_3, ListUsers,schema_view, schema_view_2, greet_user, EchoView
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
@@ -20,7 +20,16 @@ urlpatterns = [
     path('HelloView/', HelloView.as_view(), name='HelloView'),
     path('defaultversion/', DefaultVersionAPI.as_view(), name='version'),
     path('queryversion/', QueryVersionAPI.as_view(), name='version'),
-    path('requestInspection/', RequestInspectorView.as_view(), name='version')
+    path('requestInspection/', RequestInspectorView.as_view(), name='version'),
+
+    path('hello1/', hello_world),
+    path('hello2/', hello_world_2),
+    path('hello3/', hello_world_3),
+    path('schema/', schema_view),
+    path('schema2/', schema_view_2),
+    path('greetuser/', greet_user),
+    path('echo/', EchoView.as_view()),
+    path('listusers/', ListUsers.as_view()),
 
 ]
 

@@ -30,6 +30,17 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.throttling import UserRateThrottle
+from django.contrib.auth.models import User
+
+from django.contrib.auth.models import User
+from django.core.serializers import serialize
+import json
+from .serializers import UserSerializer
+from rest_framework.decorators import api_view, schema
+from rest_framework.schemas import AutoSchema
 # Create your views here.
 
 
@@ -322,3 +333,131 @@ class RequestInspectorView(APIView):
 
         # Just return it — DRF will inject content negotiation fields
         return Response(data, status=202, template_name='dummy.html')
+    
+
+
+#  views 
+
+@api_view()
+def hello_world(request):
+    return Response({"messages": "hello world"})
+
+
+@api_view(['GET', 'POST'])
+def hello_world_2(request):
+    if request.method == 'POST':
+        # return Response({"message": "Got some data!", "data": request.data})
+        # return Response({
+        #     "message": "Hello!",
+        #     "user": {
+        #         "id": request.user.id,
+        #         "username": request.user.username,
+        #         "email": request.user.email
+        #     }
+        # })
+
+        # Option 2: Use Django's built-in serializer
+        # user_json = json.loads(serialize('json', [request.user]))[0]['fields']
+        # return Response({"user": user_json})
+    
+        # Option 3: Use a DRF serializer
+        user_data = UserSerializer(request.user).data
+        return Response({"user": user_data})
+
+    return Response({"message": "Hello, world!"})
+
+
+class OncePerDayUserThrottle(UserRateThrottle):
+    rate = '1/day'
+
+@api_view(['GET'])
+@throttle_classes([OncePerDayUserThrottle])
+def hello_world_3(request):
+    return Response({"message": "Hello for today! See you tomorrow!"})
+
+
+class OneMinuteThrottle(UserRateThrottle):
+    # rate = '1/min'
+    rate = '6/min'
+    # rate = '20/second' 
+
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, throttle_classes, authentication_classes, permission_classes
+
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+@throttle_classes([OneMinuteThrottle])
+def greet_user(request):
+    return Response({"message": f"Hi {request.user.username}, you can only see this once a minute!"})
+
+
+class EchoView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        return Response({"you_sent": data})
+    
+class ListUsers(APIView):
+    """
+    View to list all users in the system.
+
+    * Requires token authentication.
+    * Only admin users are able to access this view.
+    """
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, format=None):
+        """
+        Return a list of all users.
+        """
+        usernames = [user.username for user in User.objects.all()]
+        return Response(usernames)
+
+
+
+@api_view(['GET'])
+@schema(None)
+def schema_view(request):
+    return Response({"message": "Will not appear in schema!"})
+
+
+
+from rest_framework.schemas.openapi import AutoSchema
+from rest_framework.schemas.utils import is_list_view
+from rest_framework import serializers
+from rest_framework.compat import coreapi, coreschema
+
+class CustomAutoSchema(AutoSchema):
+    def get_manual_fields(self, path, method):
+        extra_fields = []
+        if method.lower() == 'get':
+            extra_fields = [
+                coreapi.Field(
+                    name="sample_param",
+                    required=False,
+                    location="query",
+                    schema=coreschema.String(
+                        description="A sample query parameter"
+                    )
+                )
+            ]
+        return super().get_manual_fields(path, method) + extra_fields
+    
+
+class SimpleSchema(AutoSchema):
+    def get_description(self, path, method):
+        return "This is a simple custom description for this endpoint."
+
+
+
+@api_view(['GET'])
+@schema(CustomAutoSchema())
+# @schema(SimpleSchema())
+def schema_view_2(request):
+    return Response({"message": "Hello for today! See you tomorrow!"})
+    

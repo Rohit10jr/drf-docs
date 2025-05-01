@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Book, Product
 from rest_framework.reverse import reverse
 from django.urls import reverse_lazy
-
+from django.contrib.auth.models import User
 
 class BookSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
@@ -44,3 +44,8 @@ class ProductSerializer(serializers.ModelSerializer):
     #     return super().to_internal_value(data)
 
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
