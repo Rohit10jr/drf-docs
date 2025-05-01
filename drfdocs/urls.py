@@ -21,6 +21,11 @@ from rest_framework import routers, serializers, viewsets
 from rest_framework.exceptions import server_error, bad_request
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from rest_framework.routers import DefaultRouter
+from rest_framework.schemas import get_schema_view
+from snippets import views
+
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 # handler400 = bad_request     # For 400 Bad Request
 # handler500 = server_error    # For 500 Internal Server Error
@@ -50,7 +55,25 @@ urlpatterns = [
     # *apiguide_urls.urlpatterns,
     path('', include('snippets.urls')),
     # /api-auth/login/ and /api-auth/logout/ are added by rest_framework.urls by using the SessionAuthentication class in Django REST Framework.
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    # path('openapi/', get_schema_view(
+    #     title="My Project API",
+    #     description="API documentation",
+    #     version="1.0.0",
+    #     public=True,
+    # ), name='openapi-schema'),
+
+
+     # OpenAPI schema (raw JSON)
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+
+    # Swagger UI
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    # ReDoc UI
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
 ]
 
 # urlpatterns += [

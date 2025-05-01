@@ -22,6 +22,10 @@ from Apiguide.utils.pagination import StandardResultsSetPagination, CustomLimitO
 from .models import Product
 from .serializers import ProductSerializer
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.schemas.openapi import AutoSchema
+from drf_spectacular.utils import extend_schema
 # Create your views here.
 
 
@@ -180,3 +184,41 @@ class ProductListCreateView(generics.ListCreateAPIView):
         if isinstance(self.request.data, list):
             kwargs['many'] = True
         return super().get_serializer(*args, **kwargs)
+    
+
+
+# schema 
+
+# class CustomSchema(AutoSchema):
+#     def get_operation(self, path, method):
+#         operation = super().get_operation(path, method)
+#         operation["summary"] = "Custom summary for this endpoint"
+#         return operation
+
+
+# class CustomSchema(AutoSchema):
+#     def get_tags(self, path, method):
+#         return ["CustomTag"]
+
+#     def get_operation_id(self, path, method):
+#         return f"custom_{method.lower()}_op"
+
+#     def map_field(self, field):
+#         if hasattr(field, 'custom_info'):
+#             return {"type": "string", "description": "Custom field"}
+#         return super().map_field(field)
+
+
+@extend_schema(tags=["Hello"])
+class HelloView(APIView):
+    # schema = CustomSchema()
+    # schema = CustomSchema(component_name="MyComponent")
+
+    @extend_schema(
+        # request=UserSerializer,
+        # responses=UserSerializer,
+        tags=["User Signup"],
+        description="greet a hello world"
+    )
+    def get(self, request):
+        return Response({"message": "Hello World"})

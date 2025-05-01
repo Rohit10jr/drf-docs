@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'quickstart', 
     'snippets', 
-    'Apiguide'
+    'Apiguide', 
+    'drf_spectacular',
+    
 ]
 
 MIDDLEWARE = [
@@ -154,6 +156,8 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.ProductCursorPagination',
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     # 'PAGE_SIZE': 10,
+      'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
 }
 
 
