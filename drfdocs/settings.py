@@ -178,3 +178,23 @@ REST_FRAMEWORK = {
 from rest_framework.reverse import reverse_lazy
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+
+# ##############################################
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django.request': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }
+ 
+# MIDDLEWARE += ['Apiguide.utils.middleware.ResponseDebugMiddleware']

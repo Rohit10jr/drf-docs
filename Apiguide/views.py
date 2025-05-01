@@ -26,6 +26,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.schemas.openapi import AutoSchema
 from drf_spectacular.utils import extend_schema
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 # Create your views here.
 
 
@@ -249,3 +253,72 @@ class DefaultVersionAPI(APIView):
             'version': request.version,
             'message': 'Hello from DefaultVersionAPI'
         })
+    
+
+# requests
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RequestInspectorView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            stream_data = request.stream.read().decode('utf-8')
+            #  request.stream is a file-like object, but it's not guaranteed to have a .closed attribute like a regular file does. So, trying to access .closed directly on request.stream raises that AttributeError.
+        except Exception as e:
+            stream_data = f"Could not read stream: {str(e)}"
+
+        return Response({
+            "data": request.data,
+            "query_params": request.query_params,
+            "parsers": [parser.__class__.__name__ for parser in request.parsers],
+            "user": str(request.user),
+            "auth": str(request.auth),
+            "authenticators": [auth.__class__.__name__ for auth in request.authenticators],
+            "method": request.method,
+            "content_type": request.content_type,
+            "stream": stream_data
+        })
+    
+    # def get(self, request, *args, **kwargs):
+    #     # Data to be serialized in the Response
+    #     data = {
+    #         "message": "This is a demonstration of the DRF Response object",
+    #         "user": str(request.user)
+    #     }
+
+    #     # Create Response object
+    #     response = Response(data, status=202, template_name='dummy.html')
+
+    #     # Access attributes BEFORE rendering
+    #     response_info = {
+    #         "data": response.data,
+    #         "status_code": response.status_code,
+    #         "template_name": response.template_name,
+    #         "accepted_renderer": str(response.accepted_renderer),
+    #         "accepted_media_type": response.accepted_media_type,
+    #         "renderer_context": response.renderer_context,
+    #         # Don't access .content before rendering, or it might raise an error
+    #     }
+
+    #     # Call .render() manually (optional, usually done by DRF automatically)
+    #     response.render()
+
+    #     # Add rendered content to the response info
+    #     response_info["content"] = response.content.decode('utf-8')
+
+    #     # Return everything as a fresh response
+    #     return Response(response_info)
+    
+
+    def get(self, request, *args, **kwargs):
+        # Data to be serialized in the Response
+        data = {
+            "message": "This is a demonstration of the DRF Response object",
+            "user": str(request.user)
+        }
+
+        # Just return it — DRF will inject content negotiation fields
+        return Response(data, status=202, template_name='dummy.html')
