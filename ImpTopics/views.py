@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from .serializers import UserSerializer, BlogSerializer,PostSerializer, PostReadOnlySerializer, ArticleSerializer, OrderSerializer
+from .serializers import UserSerializer, BlogSerializer,PostSerializer, PostReadOnlySerializer, ArticleSerializer, OrderSerializer, PasswordSerializer
 from rest_framework import generics 
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 # Create your views here.
 from .models import Blog, Post, Article, Order
@@ -28,11 +28,24 @@ from rest_framework.generics import (
 
 from .mixins import MultipleFieldLookupMixin
 
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+from .serializers import UserSerializer
+from rest_framework import viewsets, mixins
+from rest_framework.response import Response
+
+
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from django.shortcuts import get_object_or_404
+from rest_framework.reverse import reverse
+from rest_framework.serializers import Serializer, CharField
+from rest_framework.decorators import action
+
+
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-
 
     # def list(self, request):
     #     queryset = self.get_queryset()
@@ -126,14 +139,14 @@ class ArticleListView(ListModelMixin, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-    
+
+
 class ArticleCreateView(CreateModelMixin, GenericAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-
 
 
 class ArticleDetailView(RetrieveModelMixin, GenericAPIView):
@@ -143,7 +156,7 @@ class ArticleDetailView(RetrieveModelMixin, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
-    
+
 
 class ArticleUpdateView(UpdateModelMixin, GenericAPIView):
     queryset = Article.objects.all()
@@ -251,3 +264,183 @@ class RetrieveOrderView(BaseRetrieveView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     lookup_fields = ['customer_id', 'order_number']
+
+
+# view sets 
+
+############ Different types of viewsets ############
+
+# ✅ 1. ViewSet (manual implementations)
+class ArticleViewSet(viewsets.ViewSet):
+    """
+    A custom ViewSet with all standard actions and conditional permissions.
+    """
+    def get_permissions(self):
+        """
+        Return permission classes based on action.
+        """
+        print("1 one")
+        if self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def list(self, request):
+        print("2 two")
+        queryset = Article.objects.all()
+        serializer = ArticleSerializer(queryset, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def create(self, request):
+        serializer = ArticleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_201_CREATED)
+
+    def retrieve(self, request, pk=None):
+        article = get_object_or_404(Article, pk=pk)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        article = get_object_or_404(Article, pk=pk)
+        serializer = ArticleSerializer(article, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def partial_update(self, request, pk=None):
+        article = get_object_or_404(Article, pk=pk)
+        serializer = ArticleSerializer(article, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        article = get_object_or_404(Article, pk=pk)
+        article.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+
+# ✅ 2. ModelViewSet (full CRUD support)
+class ArticleModelViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing Article instances.
+    Includes custom permissions based on action.
+    """
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+    def get_permissions(self):
+        """
+        Set permissions based on action.
+        Only authenticated users can list,
+        but only admins can create, update, or delete.
+        """
+        if self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+
+# ✅ 3. GenericViewSet / Custom ViewSet (requires mixins)
+class ArticleGenericViewSet(mixins.ListModelMixin,
+                            mixins.RetrieveModelMixin,
+                            mixins.CreateModelMixin,
+                            viewsets.GenericViewSet):
+    """
+    GenericViewSet with mixins.
+    """
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+
+# ✅ 4. ReadOnlyModelViewSet (Only READ support)
+class ArticleReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    A simple ViewSet for viewing accounts.
+    """
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+
+# user viewset
+class UserViewSet(viewsets.ViewSet):
+    """
+    A simple ViewSet for listing or retrieving users.
+    """
+    def list(self, request):
+        queryset = User.objects.all()
+        serializer = UserSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    
+
+class UserModelViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+# Full Example: UserViewSet with multiple @action patterns
+class UserActionViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    # Custom POST action with overridden permission and custom serializer
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def set_password(self, request, pk=None):
+        user = self.get_object()
+        serializer = PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response({'status': 'password set'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # GET action on the full collection
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def recent_users(self, request):
+        recent_users = User.objects.order_by('-last_login')[:5]
+        page = self.paginate_queryset(recent_users)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(recent_users, many=True)
+        return Response(serializer.data)
+
+    # Extra action supporting PUT (update password) and DELETE (unset)
+    @action(detail=True, methods=["put"], name="Change Password")
+    def password(self, request, pk=None):
+        user = self.get_object()
+        serializer = PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response({'status': 'password updated'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @password.mapping.delete
+    def delete_password(self, request, pk=None):
+        user = self.get_object()
+        user.set_password("")  # Not recommended in real-world apps
+        user.save()
+        return Response({'status': 'password deleted'})
+
+    # Example usage of reverse_action
+    @action(detail=False, methods=["get"])
+    def action_links(self, request):
+        return Response({
+            'set_password_url': self.reverse_action('set-password', args=['1']),
+            'recent_users_url': self.reverse_action(self.recent_users.url_name),
+            'password_put_url': self.reverse_action('password', args=['1']),
+        })

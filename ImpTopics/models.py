@@ -27,3 +27,14 @@ class Order(models.Model):
     customer_id = models.IntegerField()
     order_number = models.CharField(max_length=20)
     description = models.TextField()
+
+# solution for n + 1 problem
+
+# ⚠️ Short Answer: What is the N+1 Problem?
+# The N+1 problem happens when:
+# You run 1 query to fetch N parent objects (e.g., Order)
+# Then run N additional queries to fetch related data (e.g., Customer for each Order)
+# This leads to performance issues.
+
+# def get_queryset(self):
+    # return Order.objects.select_related('customer').prefetch_related('items')

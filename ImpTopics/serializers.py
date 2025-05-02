@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Blog, Post, Article, Order
+from rest_framework.serializers import Serializer, CharField
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -33,3 +34,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+
+
+class PasswordSerializer(Serializer):
+    password = CharField(write_only=True, required=True)

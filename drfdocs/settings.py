@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
         # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ], 
-    'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
+    # 'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
     'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
     # 'DEFAULT_METADATA_CLASS': 'Apiguide.utils.metadata.MinimalMetadata'
     # 'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'myapp.negotiation.IgnoreClientContentNegotiation',

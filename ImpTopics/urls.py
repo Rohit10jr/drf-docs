@@ -3,7 +3,10 @@ from .views import UserList, BlogListView, BlogDetailView, BlogCreate, ArticleLi
 from .serializers import UserSerializer
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
-from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView
+from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet
+
+from .views import UserViewSet, UserModelViewSet, ArticleViewSet, ArticleModelViewSet, ArticleReadOnlyViewSet
+from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     path('listuser/', UserList.as_view()), 
@@ -13,6 +16,7 @@ urlpatterns = [
     path('blogcreate/', BlogCreate.as_view(), name='book-create'),
     # path('post/', PostListCreateView.as_view(), name='post-create'),
     # path('posts/<int:pk>/', PostRetrieveDeleteView.as_view(), name='post-detail-delete'),
+    # path('posts/<slug:slug>/', PostRetrieveDeleteView.as_view(), name='post-detail-delete'),
     # path('articles/', ArticleListView.as_view(), name='article-list'),
     # path('articles/create/', ArticleCreateView.as_view(), name='article-create'),
     # path('articles/<int:pk>/', ArticleDetailView.as_view(), name='article-detail'),
@@ -48,3 +52,14 @@ urlpatterns = [
     path('orders/<int:customer_id>/<str:order_number>/', RetrieveOrderView.as_view())
 
 ]
+
+router = DefaultRouter()
+# router.register(r'userviewset', UserViewSet, basename='user')
+router.register(r'userviewset', UserModelViewSet, basename='user')
+router.register(r'useraction', UserActionViewSet, basename='useraction')
+router.register(r'articleviewset', ArticleViewSet, basename='article')
+router.register(r'articlemodel', ArticleModelViewSet, basename='articlemodel')
+router.register(r'articlegerneric', ArticleGenericViewSet, basename='articlegeneric')
+router.register(r'articlereadonly', ArticleReadOnlyViewSet, basename='articlemodelreadonly')
+
+urlpatterns += router.urls
