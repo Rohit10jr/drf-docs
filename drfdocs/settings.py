@@ -159,7 +159,7 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.ProductCursorPagination',
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     # 'PAGE_SIZE': 10,
-      'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
 
     # versioning
@@ -172,6 +172,21 @@ REST_FRAMEWORK = {
     # 'DEFAULT_VERSION': '1.0',  # Default version if none is provided
     # 'ALLOWED_VERSIONS': ['1.0', '2.0'],  # Allowed versions
     # 'VERSION_PARAM': 'v',  # Version query parameter (useful for URLParamVersioning)
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    # ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/day',     # 100 requests per day for anonymous users
+        'user': '20/day',    # 1000 requests per day for authenticated users
+        'burst': '5/min',
+        'sustained': '20/day',
+    },
+    # this is for custom throttle class
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'custom_user': '4/day',
+    #     'custom_anon': '2/day',
+    # }
 
 }
 

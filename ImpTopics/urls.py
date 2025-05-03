@@ -3,7 +3,7 @@ from .views import UserList, BlogListView, BlogDetailView, BlogCreate, ArticleLi
 from .serializers import UserSerializer
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
-from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet, BlogCacheView, get_user_name, ProfileViewCache, UserFeedView
+from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet, BlogCacheView, get_user_name, ProfileViewCache, UserFeedView, example_throttle_view, ExampleThrottleView, custom_example_throttle_view, custom_view,MyThrottledView
 
 from .views import UserViewSet, UserModelViewSet, ArticleViewSet, ArticleModelViewSet, ArticleReadOnlyViewSet
 from rest_framework.routers import DefaultRouter
@@ -53,7 +53,12 @@ urlpatterns = [
     path('usercache/', get_user_name),
     path('user2cache/', BlogCacheView.as_view()),
     path('user3cache/', ProfileViewCache.as_view({'get': 'list'})),
-    path('user4cache/', UserFeedView.as_view()),
+    path('user4cache/', UserFeedView.as_view()), 
+    path('throttle/', example_throttle_view), 
+    path('throttle2/', ExampleThrottleView.as_view()), 
+    path('throttle3/', custom_example_throttle_view), 
+    path('throttle4/', custom_view),
+    path('throttle5/', MyThrottledView.as_view()),
 
 ]
 

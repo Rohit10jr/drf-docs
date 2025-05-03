@@ -515,3 +515,97 @@ class UserFeedView(APIView):
             cache.set(cache_key, data, timeout=60)  # 60seconds
 
         return Response(data)
+
+
+
+# throttle 
+
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle, SimpleRateThrottle
+    
+@api_view(['GET'])
+# @throttle_classes([UserRateThrottle])
+def example_throttle_view(request, format=None):
+    content = {
+        'status': 'request was permitted'
+    }
+    return Response(content)
+
+
+class ExampleThrottleView(APIView):
+    throttle_classes = [UserRateThrottle]
+
+    def get(self, request, format=None):
+        content = {
+            'status': 'request was permitted'
+        }
+        return Response(content)
+    
+
+class MyViewSet(viewsets.ViewSet):
+
+    @action(detail=False, methods=["get"], throttle_classes=[UserRateThrottle])
+    def limited(self, request):
+        return Response({"message": "Throttled endpoint"})
+
+
+# custom throttle
+class CustomThrottle(UserRateThrottle):
+    scope = 'custom_scope'
+
+    def get_rate(self):
+        return '5/min'
+    
+@api_view(['GET'])
+@throttle_classes([CustomThrottle])
+def custom_example_throttle_view(request, format=None):
+    return Response({'status': 'This view allows 5 requests per minute'})
+
+# class CustomThrottle(SimpleRateThrottle):
+#     def get_cache_key(self, request, view):
+#         if request.user.is_authenticated:
+#             # Use user ID to throttle
+#             return self.cache_format % {
+#                 'scope': 'custom_user',
+#                 'ident': request.user.pk
+#             }
+#         else:
+#             # Use IP for anonymous users
+#             ident = self.get_ident(request)
+#             return self.cache_format % {
+#                 'scope': 'custom_anon',
+#                 'ident': ident
+#             }
+
+#     def get_rate(self):
+#         # Override to use separate logic per user type
+#         if self.scope == 'custom_user':
+#             return '6/day'
+#         elif self.scope == 'custom_anon':
+#             return '3/day'
+
+class CustomUserThrottle(UserRateThrottle):
+    scope = 'custom_user'
+
+
+class CustomAnonThrottle(AnonRateThrottle):
+    scope = 'custom_anon'
+
+
+@api_view(['GET'])
+@throttle_classes([CustomUserThrottle, CustomAnonThrottle])
+def custom_view(request):
+    return Response({"message": "Hello, throttled world!"})
+
+class BurstRateThrottle(UserRateThrottle):
+    scope = 'burst'
+
+class SustainedRateThrottle(UserRateThrottle):
+    scope = 'sustained'
+
+
+class MyThrottledView(APIView):
+    throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
+    def get(self, request, format=None):
+        return Response({'message': 'This is throttled by burst and sustained rates.'})
