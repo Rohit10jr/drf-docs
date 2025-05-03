@@ -609,3 +609,25 @@ class MyThrottledView(APIView):
     throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
     def get(self, request, format=None):
         return Response({'message': 'This is throttled by burst and sustained rates.'})
+
+
+
+class PostListView(APIView):
+    throttle_scope = 'posts'
+
+    def get(self, request, format=None):
+        return Response({"message": "Here are the blog posts."})
+
+
+class CommentView(APIView):
+    throttle_scope = 'comments'
+
+    def get(self, request, format=None):
+        return Response({"message": "Your comment has been posted."})
+
+
+class LikeView(APIView):
+    throttle_scope = 'likes'
+
+    def post(self, request, format=None):
+        return Response({"message": "You liked this post."})

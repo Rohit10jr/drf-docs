@@ -175,18 +175,28 @@ REST_FRAMEWORK = {
     # 'DEFAULT_THROTTLE_CLASSES': [
     #     'rest_framework.throttling.AnonRateThrottle',
     #     'rest_framework.throttling.UserRateThrottle',
+    #      'rest_framework.throttling.ScopedRateThrottle',
     # ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '20/day',     # 100 requests per day for anonymous users
-        'user': '20/day',    # 1000 requests per day for authenticated users
-        'burst': '5/min',
-        'sustained': '20/day',
-    },
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '20/day',     # 100 requests per day for anonymous users
+    #     'user': '20/day',    # 1000 requests per day for authenticated users
+    #     'burst': '5/min',
+    #     'sustained': '20/day',
+    # },
     # this is for custom throttle class
     # 'DEFAULT_THROTTLE_RATES': {
     #     'custom_user': '4/day',
     #     'custom_anon': '2/day',
     # }
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'posts': '5/day',
+        'comments': '4/day',
+        'likes': '3/day',
+    }
 
 }
 
