@@ -38,3 +38,31 @@ class Order(models.Model):
 
 # def get_queryset(self):
     # return Order.objects.select_related('customer').prefetch_related('items')
+
+
+class Purchase(models.Model):
+    purchaser = models.ForeignKey(User, on_delete=models.CASCADE)
+    product_name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product_name} by {self.purchaser.username}"
+    
+
+
+
+class Product(models.Model):
+    CATEGORY_CHOICES = (
+        ('electronics', 'Electronics'),
+        ('clothing', 'Clothing'),
+        ('books', 'Books'),
+    )
+
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    in_stock = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

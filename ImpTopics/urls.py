@@ -3,7 +3,7 @@ from .views import UserList, BlogListView, BlogDetailView, BlogCreate, ArticleLi
 from .serializers import UserSerializer
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
-from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet, BlogCacheView, get_user_name, ProfileViewCache, UserFeedView, example_throttle_view, ExampleThrottleView, custom_example_throttle_view, custom_view,MyThrottledView, PostListView, CommentView, LikeView
+from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet, BlogCacheView, get_user_name, ProfileViewCache, UserFeedView, example_throttle_view, ExampleThrottleView, custom_example_throttle_view, custom_view,MyThrottledView, PostListView, CommentView, LikeView, PurchaseList, PurchaseListByUsername, PurchaseListWithQueryParam, ProductListFilterView, UserSerachListView, UserOrderListView, ProductFilterSearchOrderView
 
 from .views import UserViewSet, UserModelViewSet, ArticleViewSet, ArticleModelViewSet, ArticleReadOnlyViewSet
 from rest_framework.routers import DefaultRouter
@@ -62,6 +62,13 @@ urlpatterns = [
     path('throttlepost/', PostListView.as_view(), name='post-list'),
     path('throttlecomments/', CommentView.as_view(), name='comment'),
     path('throttlelikes/', LikeView.as_view(), name='like'),
+    path('purchase1/', PurchaseList.as_view(), name='PurchaseList'),
+    path('purchase2/<str:username>/', PurchaseListByUsername.as_view()),
+    path('purchase3/', PurchaseListWithQueryParam.as_view()),
+    path('filterproduct/', ProductListFilterView.as_view()),
+    path('searchuser/', UserSerachListView.as_view()),
+    path('orderuser/', UserOrderListView.as_view()),
+    path('productfso/', ProductFilterSearchOrderView.as_view()),
 
 ]
 

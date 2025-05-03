@@ -631,3 +631,86 @@ class LikeView(APIView):
 
     def post(self, request, format=None):
         return Response({"message": "You liked this post."})
+
+
+# filtering 
+from .models import Purchase
+from .serializers import PurchaseSerializer
+
+
+class PurchaseList(generics.ListAPIView):
+    serializer_class = PurchaseSerializer
+
+    def get_queryset(self):
+        """
+        Return purchases for the currently authenticated user.
+        """
+        user = self.request.user
+        return Purchase.objects.filter(purchaser=user)
+
+
+class PurchaseListByUsername(generics.ListAPIView):
+    serializer_class = PurchaseSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases for
+        the user as determined by the username portion of the URL.
+        """
+        username = self.kwargs['username']
+        return Purchase.objects.filter(purchaser__username=username)
+
+
+class PurchaseListWithQueryParam(generics.ListAPIView):
+    serializer_class = PurchaseSerializer
+
+    def get_queryset(self):
+        queryset = Purchase.objects.all()
+        username = self.request.query_params.get('username')
+        if username:
+            queryset = queryset.filter(purchaser__username=username)
+        return queryset
+    
+from .models import Product
+from .serializers import ProductSerializer
+from .filters import ProductFilter, CustomSearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, filters
+
+class ProductListFilterView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    # per view filter backend
+    filter_backends = [DjangoFilterBackend]
+    # filterset_class = ProductFilter
+    filterset_fields = ['category', 'in_stock']
+
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return user.purchase_set.all()
+
+
+class UserSerachListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = [filters.SearchFilter]
+    # filter_backends = [CustomSearchFilter]
+    search_fields = ['username', 'email']
+
+class UserOrderListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = [filters.OrderingFilter]
+    # ordering_fields = ['username', 'email']  # Only allow these fields for ordering
+    # ordering_fields = '__all__'  # Allow any field (be cautious!)
+    ordering = ['username']  # Default ordering if none is provided in query
+
+
+class ProductFilterSearchOrderView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    filterset_fields = ['category', 'in_stock']
+    search_fields = ['category', 'name']
+    ordering_fields = ['price']
+    ordering = ['id']  

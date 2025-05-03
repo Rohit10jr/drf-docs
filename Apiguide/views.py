@@ -39,8 +39,11 @@ from django.contrib.auth.models import User
 from django.core.serializers import serialize
 import json
 from .serializers import UserSerializer
-from rest_framework.decorators import api_view, schema
+from rest_framework.decorators import api_view, schema, renderer_classes
 from rest_framework.schemas import AutoSchema
+
+from rest_framework.renderers import JSONOpenAPIRenderer, JSONRenderer, TemplateHTMLRenderer, StaticHTMLRenderer
+
 # Create your views here.
 
 
@@ -461,3 +464,67 @@ class SimpleSchema(AutoSchema):
 def schema_view_2(request):
     return Response({"message": "Hello for today! See you tomorrow!"})
     
+
+
+
+# renderers
+
+
+class UserCountView(APIView):
+    """
+    A view that returns the count of active users in JSON.
+    """
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request, format=None):
+        user_count = User.objects.filter(is_active=True).count()
+        content = {'user_count': user_count}
+        return Response(content)
+    
+    
+@api_view(['GET'])
+@renderer_classes([JSONRenderer])
+def user_count_view(request, format=None):
+    """
+    A view that returns the count of active users in JSON.
+    """
+    user_count = User.objects.filter(is_active=True).count()
+    content = {'user_count': user_count}
+    return Response(content)
+
+# 1️⃣ JSONRenderer
+class ProductJSONView(generics.GenericAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request, *args, **kwargs):
+        # product = self.get_object()
+        product = self.get_queryset()
+        serializer = self.get_serializer(product,  many=True)
+        return Response(serializer.data)
+    
+# 2️⃣ TemplateHTMLRenderer
+class ProductDetailHTMLView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    renderer_classes = [TemplateHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        product = self.get_object()
+        return Response({'product': product}, template_name='product.html')
+    
+
+# 3️⃣ StaticHTMLRenderer
+@api_view(['GET'])
+@renderer_classes([StaticHTMLRenderer])
+def static_html_view(request):
+    data = """
+    <html>
+        <head><title>Welcome</title></head>
+        <body>
+            <h1>Hello, this is static HTML!</h1>
+            <p>This is a pre-rendered response.</p>
+        </body>
+    </html>
+    """
+    return Response(data)

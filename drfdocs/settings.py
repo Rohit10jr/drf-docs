@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'drf_spectacular',
+    'django_filters',
 
     'quickstart', 
     'snippets', 
@@ -196,7 +197,14 @@ REST_FRAMEWORK = {
         'posts': '5/day',
         'comments': '4/day',
         'likes': '3/day',
-    }
+    }, 
+
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
 
 }
 
