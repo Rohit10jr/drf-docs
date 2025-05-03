@@ -444,3 +444,74 @@ class UserActionViewSet(viewsets.ModelViewSet):
             'recent_users_url': self.reverse_action(self.recent_users.url_name),
             'password_put_url': self.reverse_action('password', args=['1']),
         })
+
+
+
+# caching 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from rest_framework.decorators import api_view
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
+from django.core.cache import cache
+
+
+@cache_page(60*10)
+@vary_on_cookie
+@api_view(["GET"])
+def get_user_name(request):
+    content = {'user_feed': request.user.username}
+    return Response(content)
+    
+
+class BlogCacheView(APIView):
+    @method_decorator(cache_page(60 * 60))  # 1 hour
+    @method_decorator(vary_on_headers("Authorization"))
+    def get(self, request):
+        # data = {"title": Blog.objects.get(id=1).title}
+        
+        blog = get_object_or_404(Blog, id=1)
+        data = {"title": blog.title}
+
+        # try:
+        #     blog = Blog.objects.get(id=1)
+        #     data = {"title": blog.title}
+        # except Blog.DoesNotExist:
+        #     data = {"title": "Not found"}
+
+        return Response(data)
+
+
+class ProfileViewCache(viewsets.ViewSet):
+    # With auth: cache requested url for each user for 2 hours
+    # @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(cache_page(60))
+    @method_decorator(vary_on_headers("Authorization"))
+    def list(self, request, format=None):
+        content = {
+            "user_name": request.user.username
+        }
+        return Response(content)
+    
+
+class UserFeedView(APIView):
+    def get(self, request):
+        user_id = request.user.id
+        name = request.user.username
+        cache_key = f"user_feed_{user_id}"
+        data = cache.get(cache_key)
+        # blog = get_object_or_404(Blog, id=1).title
+        blog =  Blog.objects.get(id=1).title
+        if not data:
+            # Simulate expensive logic
+            data = {"name": name,
+                    "blog": blog,
+                    "feed": f"Expensive data for user {user_id}"
+                    }
+            cache.set(cache_key, data, timeout=60)  # 60seconds
+
+        return Response(data)

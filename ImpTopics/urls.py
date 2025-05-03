@@ -3,7 +3,7 @@ from .views import UserList, BlogListView, BlogDetailView, BlogCreate, ArticleLi
 from .serializers import UserSerializer
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
-from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet
+from .views import  GenericArticleListView, GenericArticleCreateView,  GenericArticleDetailView, GenericArticleUpdateView, GenericArticleDeleteView, GenericListCreateView, GenericRetrieveUpdateDeleteView, OneViewForAll, RetrieveOrderView, ArticleGenericViewSet, UserActionViewSet, BlogCacheView, get_user_name, ProfileViewCache, UserFeedView
 
 from .views import UserViewSet, UserModelViewSet, ArticleViewSet, ArticleModelViewSet, ArticleReadOnlyViewSet
 from rest_framework.routers import DefaultRouter
@@ -49,7 +49,11 @@ urlpatterns = [
     path('one4allCrud/<int:pk>/', OneViewForAll.as_view(), name='article-RUD'),
 
     # urls.py
-    path('orders/<int:customer_id>/<str:order_number>/', RetrieveOrderView.as_view())
+    path('orders/<int:customer_id>/<str:order_number>/', RetrieveOrderView.as_view()),
+    path('usercache/', get_user_name),
+    path('user2cache/', BlogCacheView.as_view()),
+    path('user3cache/', ProfileViewCache.as_view({'get': 'list'})),
+    path('user4cache/', UserFeedView.as_view()),
 
 ]
 
