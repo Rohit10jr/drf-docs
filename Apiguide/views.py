@@ -20,7 +20,7 @@ from Apiguide.utils.negotiation import IgnoreClientContentNegotiation
 
 from Apiguide.utils.pagination import StandardResultsSetPagination, CustomLimitOffsetPagination, ProductCursorPagination,CustomPagination
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, ProductUrlSerializer
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -42,7 +42,7 @@ from .serializers import UserSerializer
 from rest_framework.decorators import api_view, schema, renderer_classes
 from rest_framework.schemas import AutoSchema
 
-from rest_framework.renderers import JSONOpenAPIRenderer, JSONRenderer, TemplateHTMLRenderer, StaticHTMLRenderer
+from rest_framework.renderers import JSONOpenAPIRenderer, JSONRenderer, TemplateHTMLRenderer, StaticHTMLRenderer,AdminRenderer
 
 # Create your views here.
 
@@ -496,23 +496,59 @@ def user_count_view(request, format=None):
 class ProductJSONView(generics.GenericAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    renderer_classes = [JSONRenderer]
-
+    # renderer_classes = [JSONRenderer]
+    
     def get(self, request, *args, **kwargs):
-        # product = self.get_object()
-        product = self.get_queryset()
-        serializer = self.get_serializer(product,  many=True)
+        pk = self.kwargs.get("pk")
+
+        if pk is not None:
+            product = self.get_object()  # returns a single object
+            serializer = self.get_serializer(product)
+        else:
+            products = self.get_queryset()  # returns a queryset
+            serializer = self.get_serializer(products, many=True)
+
         return Response(serializer.data)
     
 # 2️⃣ TemplateHTMLRenderer
-class ProductDetailHTMLView(generics.RetrieveAPIView):
+
+class ProductDetailHTMLView(generics.GenericAPIView):
     queryset = Product.objects.all()
     renderer_classes = [TemplateHTMLRenderer]
+    serializer_class = ProductSerializer
+    
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get("pk")
+        if pk is not None:
+            product = self.get_object()
+            return Response({'product': product}, template_name='Apiguide/product_detail.html')
+        else:
+            products = self.get_queryset()
+            return Response({'products': products}, template_name='Apiguide/product_list.html')
+
+
+class ProductListRenderView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'Apiguide/product_list.html'
+
+    def get(self, request, *args, **kwargs):
+        products = self.get_queryset()
+        # serialize = self.get_serializer(products, many=True)
+        # return Response({'product': serialize.data})
+        return Response({'products': products})
+
+
+class ProductDetailRenderView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'Apiguide/product_detail.html'
 
     def get(self, request, *args, **kwargs):
         product = self.get_object()
-        return Response({'product': product}, template_name='product.html')
-    
+        return Response({'product': product})
+
 
 # 3️⃣ StaticHTMLRenderer
 @api_view(['GET'])
@@ -528,3 +564,130 @@ def static_html_view(request):
     </html>
     """
     return Response(data)
+
+
+from rest_framework.renderers import BrowsableAPIRenderer
+
+class CustomBrowableAPIRenderer(BrowsableAPIRenderer):
+    def get_default_renderer(self, view):
+        return JSONRenderer()
+    
+# 1️⃣ BrowsableAPIRenderer
+class MyProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductUrlSerializer
+    renderer_classes = [CustomBrowableAPIRenderer, JSONRenderer]
+
+# 2️⃣ AdminRenderer
+
+class ProductAdminView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductUrlSerializer
+    renderer_classes = [AdminRenderer]
+
+
+# 3️⃣ HTMLFormRenderer
+
+from rest_framework import serializers, views
+from django.shortcuts import render
+
+class ContactSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    email = serializers.EmailField()
+    message = serializers.CharField()
+
+class ContactView(views.APIView):
+    def get(self, request):
+        serializer = ContactSerializer()
+        return render(request, 'Apiguide/contact.html', {'serializer': serializer})
+
+#  Example 1: Plain Text Renderer (simple string output)
+from django.utils.encoding import smart_str
+from rest_framework import renderers
+
+class PlainTextRenderer(renderers.BaseRenderer):
+    media_type = 'text/plain'
+    format = 'txt'
+
+    def render(self, data, accepted_media_type=None, render_context=None):
+        return smart_str(data, encoding=self.charset)
+
+# Example 2: ISO-8859-1 Renderer (change encoding) This is useful for legacy systems that don’t use UTF-8.
+class PlainTextRendererISO(renderers.BaseRenderer):
+    media_type = 'text/plain'
+    format = 'txt'
+    charset = 'iso-8859-1'  # Charset changed
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        return data.encode(self.charset)  # Must encode manually
+
+class ProductPlainTextView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    # renderer_classes = [PlainTextRenderer]
+    renderer_classes = [PlainTextRendererISO]
+    # renderer_classes = [JSONRenderer]
+
+
+# examples 3 & 4 are not tried. 
+# Example 3: Binary Data Renderer (JPEG)
+class JPEGRenderer(renderers.BaseRenderer):
+    media_type = 'image/jpeg'
+    format = 'jpg'
+    charset = None                   # Important: no charset for binary
+    render_style = 'binary'          # Tells DRF it's binary (for browsable API)
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        return data  # `data` must be raw image bytes (from database, disk, etc.)
+
+
+class ProductImageView(APIView):
+    renderer_classes = [JPEGRenderer]
+
+    def get(self, request, *args, **kwargs):
+        # Just an example: load image from disk (replace with your logic)
+        with open('path/to/image.jpg', 'rb') as image_file:
+            image_data = image_file.read()
+        return Response(image_data)
+
+
+# Example 4: CSV Renderer example
+import csv
+from io import StringIO
+
+class CSVRenderer(renderers.BaseRenderer):
+    media_type = 'text/csv'
+    format = 'csv'
+    charset = 'utf-8'
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        if data is None:
+            return ''
+        
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Write headers if data is a list of dicts
+        if isinstance(data, list) and len(data) > 0:
+            writer.writerow(data[0].keys())
+            for item in data:
+                writer.writerow(item.values())
+        else:
+            writer.writerow(data.keys())
+            writer.writerow(data.values())
+
+        return output.getvalue()
+
+
+@api_view(['GET'])
+@renderer_classes([TemplateHTMLRenderer, JSONRenderer])
+def list_users(request):
+    queryset = User.objects.filter(is_active=True)
+
+    if request.accepted_renderer.format == 'html':
+        # HTML mode: No serializer needed, pass queryset directly to template
+        return Response({'users': queryset}, template_name='Apiguide/list_user.html')
+
+    # JSON mode: Serialize as usual
+    serializer = UserSerializer(queryset, many=True)
+    return Response(serializer.data)

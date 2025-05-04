@@ -2,7 +2,7 @@ from django.urls import path, include
 from .views import BookList, BookDetail, BookCreateView, BookCreateViewApi, BookCreateViewApi
 from .views import BookList, BookDetail, BookCreateView, BookCreateViewApi, BookCreateViewApi, GlobalMetadataView, PerViewMetadataView, SchemaViewSet, MinimalExampleView, NoNegotiationView, CommentList
 from rest_framework.routers import DefaultRouter
-from .views import SchemaViewSet, ProductListCreateView, ProductListView, HelloView, DefaultVersionAPI, QueryVersionAPI, RequestInspectorView, hello_world, hello_world_2, hello_world_3, ListUsers,schema_view, schema_view_2, greet_user, EchoView, UserCountView, user_count_view, ProductDetailHTMLView, static_html_view, ProductJSONView
+from .views import SchemaViewSet, ProductListCreateView, ProductListView, HelloView, DefaultVersionAPI, QueryVersionAPI, RequestInspectorView, hello_world, hello_world_2, hello_world_3, ListUsers,schema_view, schema_view_2, greet_user, EchoView, UserCountView, user_count_view, ProductDetailHTMLView, static_html_view, ProductJSONView, ProductListRenderView, ContactView, ProductPlainTextView, ProductDetailRenderView, MyProductListView, ProductAdminView, list_users
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
@@ -33,10 +33,17 @@ urlpatterns = [
     path('countusers/', UserCountView.as_view()),
     path('countusers2/', user_count_view),
     path('jsonresponse/<int:pk>/', ProductJSONView.as_view()),
-    path('api/htmlresponse/<int:pk>/', ProductDetailHTMLView.as_view()),
     path('jsonresponse/', ProductJSONView.as_view()),
+    path('htmlresponse/<int:pk>/', ProductDetailHTMLView.as_view()),
     path('htmlresponse/', ProductDetailHTMLView.as_view()),
+    # path('htmlresponse/', ProductListRenderView.as_view()),
+    # path('htmlresponse/<int:pk>/', ProductDetailRenderView.as_view()),
     path('staticresponse/', static_html_view),
+    path('custom1/', MyProductListView.as_view()),
+    path('custom2/', ProductAdminView.as_view()),
+    path('custom3/', ContactView.as_view()),
+    path('custom4/<int:pk>/', ProductPlainTextView.as_view()),
+    path('list_users/', list_users),
 
 ]
 
