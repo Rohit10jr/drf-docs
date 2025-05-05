@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+  
     'rest_framework',
     'drf_spectacular',
     'django_filters',
@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'quickstart', 
     'snippets', 
     'Apiguide', 
-    'ImpTopics'
+    'ImpTopics',
+    'serializerTopix'
     
 ]
 
