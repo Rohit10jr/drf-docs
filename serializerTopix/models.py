@@ -63,3 +63,12 @@ class UserProfile(models.Model):
     username = models.CharField(max_length=100)
     email = models.EmailField()
     bio = models.CharField(null=True)
+
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+class Novel(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)

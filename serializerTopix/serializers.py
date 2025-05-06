@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Comments, TempUser, Account, News, Category, Book, UserProfile
+from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel
 from rest_framework.validators import UniqueTogetherValidator
 
 
@@ -224,8 +224,25 @@ class UserProfileSerializer( BaseProfileSerializer, DynamicFieldsModelSerializer
         rep['username'] = rep['username'].lower()  # Force lowercase
         return rep
 
-    # def to_internal_value(self, data):
-    #     validated_data = super().to_internal_value(data)
-    #     validated_data['email'] = validated_data['email'].lower()
-    #     return validated_data
+    def to_internal_value(self, data):
+        validated_data = super().to_internal_value(data)
+        validated_data['email'] = validated_data['email'].lower()
+        return validated_data
         # return super().to_internal_value(data)
+
+
+
+class NovelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Novel
+        fields = ['id', 'title', 'author']
+        # include nested data for related models
+
+        # with depth post request is not working 
+        depth = 1
+
+        # Extra customization for individual fields
+        # extra_kwargs = {
+            # 'title': {'required': False},           # Make title optional
+            # 'title': {'write_only': True}          # Only accept author in input, don't show in output
+        # }

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import Comments, Post, Account, News, Category, Book, UserProfile
-from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, PostSerializer, AccountSerializer, BookSerializer
+from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel
+from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, PostSerializer, AccountSerializer, BookSerializer
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -359,3 +359,12 @@ class UserProfileDetailAPIView(APIView):
 #             serializer.save()
 #             return Response(serializer.data)
 #         return Response(serializer.errors, status=400)
+
+class NovelListCreateView(generics.ListCreateAPIView):
+    queryset = Novel.objects.all()
+    serializer_class = NovelSerializer
+
+class NovelRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Novel.objects.all()
+    serializer_class = NovelSerializer
+    lookup_field = 'pk'
