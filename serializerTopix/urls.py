@@ -1,5 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from rest_framework.routers import DefaultRouter
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView
 
 urlpatterns = [
     # For CBV
@@ -11,5 +13,19 @@ urlpatterns = [
     path('comments/<int:pk>/', views.comment_detail, name='comment-detail'),
      path('temppost/', views.PostListCreateAPIView.as_view(), name='post-list-create'),
     path('temppost/<int:pk>/', views.PostRetrieveUpdateDestroyAPIView.as_view(), name='post-detail'),
-
+    path('news/', views.NewsListCreateView.as_view(), name='news-list'),
+    path('news/<int:pk>/', views.NewsDetailView.as_view(), name='news-detail'),
+    path('books/', views.BookListCreateView.as_view(), name='book-list-create'),
+    path('books/bulk-update/', views.BookBulkUpdateView.as_view(), name='book-bulk-update'),
+    path('userpro/', UserProfileApiview.as_view(), name='userPro'),
+    path('userpro/<int:pk>/', UserProfileDetailAPIView.as_view(), name='userPro'),
 ]
+
+
+router = DefaultRouter()
+
+# router.register(r'accounts', AccountViewSet)
+# router.register(r'userprofile', UserProfileViewset)
+# urlpatterns += [
+#     path('', include(router.urls)),
+# ]

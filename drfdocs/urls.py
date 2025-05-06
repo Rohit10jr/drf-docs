@@ -50,9 +50,9 @@ from Apiguide import urls as apiguide_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', include(router.urls)),
+    path('api/', include('serializerTopix.urls')),
     path('api/', include('ImpTopics.urls')),
     path('api/', include('quickstart.urls')),
-    path('api/', include('serializerTopix.urls')),
     # *apiguide_urls.urlpatterns,
     path('', include('snippets.urls')),
     # /api-auth/login/ and /api-auth/logout/ are added by rest_framework.urls by using the SessionAuthentication class in Django REST Framework.

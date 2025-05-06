@@ -30,3 +30,36 @@ class Post(models.Model):
 class Reaction(models.Model):
     post = models.OneToOneField(Post, on_delete=models.CASCADE, related_name='comment')
     content = models.TextField()
+
+
+class Account(models.Model):
+    account_name = models.CharField()
+    user_type = models.CharField()
+    created = models.DateTimeField(auto_now_add=True)
+
+class Category(models.Model):
+    name = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+class News(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='articles')
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=100)
+    published = models.DateField()
+
+
+class UserProfile(models.Model):
+    username = models.CharField(max_length=100)
+    email = models.EmailField()
+    bio = models.CharField(null=True)

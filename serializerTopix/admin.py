@@ -1,6 +1,11 @@
 from django.contrib import admin
-from .models import Comments, TempUser
+from .models import Comments, TempUser, Account, Category, News, Book, UserProfile
 # Register your models here.
 
 admin.site.register(Comments)
 admin.site.register(TempUser)
+admin.site.register(Account)
+admin.site.register(Category)
+admin.site.register(News)
+admin.site.register(Book)
+admin.site.register(UserProfile)
