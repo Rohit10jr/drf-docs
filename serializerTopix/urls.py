@@ -1,7 +1,15 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet
+
+
+router = DefaultRouter()
+
+router.register(r'accounts', AccountViewSet)
+router.register(r'userprofile', UserProfileViewset)
+router.register(r'albumviewset', AlbumViewSet)
+router.register(r'tracks', TrackViewSet, basename='track')
 
 urlpatterns = [
     # For CBV
@@ -23,13 +31,16 @@ urlpatterns = [
     path('novel/<int:pk>/', NovelRetrieveUpdateDestroyView.as_view(), name='novel-detail'),
     path('color/', DataPointColorListCreateView.as_view(), name='color'),
     path('color/', DataPointColorDetailView.as_view(), name='color'),
+    path('album/', AlbumListCreateView.as_view(), name='album-list'),
+    path('album/<int:pk>/', AlbumDetailView.as_view(), name='album-detail'),
+    path('track/', TrackListCreateView.as_view(), name='track-list'),
+    path('album/<int:pk>/', TrackDetailView.as_view(), name='track-detail'),
+
+    path('', include(router.urls)),
 ]
 
 
-router = DefaultRouter()
 
-# router.register(r'accounts', AccountViewSet)
-# router.register(r'userprofile', UserProfileViewset)
 # urlpatterns += [
 #     path('', include(router.urls)),
 # ]

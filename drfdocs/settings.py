@@ -206,8 +206,10 @@ REST_FRAMEWORK = {
     #     # 'rest_framework.renderers.JSONRenderer',
     #     # 'rest_framework.renderers.BrowsableAPIRenderer',
     # ]
+    
+    # this is required to put and post hyerlink field
+    'DEFAULT_VERSIONING_CLASS': None  # or just leave it unset
 }
-
 
 
 # settings.py

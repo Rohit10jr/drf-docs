@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor
-from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer
+from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track
+from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer, AlbumSerializer, TrackSerializer, TrackHyperLinkSerializer, AlbumHyperLinkSerializer
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -367,7 +367,7 @@ class NovelListCreateView(generics.ListCreateAPIView):
 class NovelRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Novel.objects.all()
     serializer_class = NovelSerializer
-    lookup_field = 'pk'
+    # lookup_field = 'pk'
 
 
 class DataPointColorListCreateView(generics.ListCreateAPIView):
@@ -378,3 +378,32 @@ class DataPointColorListCreateView(generics.ListCreateAPIView):
 class DataPointColorDetailView(generics.RetrieveUpdateAPIView):
     queryset = DataPointColor.objects.all()
     serializer_class = DataPointColorSerializer
+
+# serializer fields
+class AlbumListCreateView(generics.ListCreateAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+
+class AlbumDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+class TrackListCreateView(generics.ListCreateAPIView):
+    queryset = Track.objects.all()
+    serializer_class = TrackSerializer
+
+class TrackDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Track.objects.all()
+    serializer_class = TrackSerializer
+
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumHyperLinkSerializer
+
+class TrackViewSet(viewsets.ModelViewSet):
+    queryset = Track.objects.all()
+    serializer_class = TrackHyperLinkSerializer
+
+

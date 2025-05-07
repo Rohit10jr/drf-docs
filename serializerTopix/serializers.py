@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor
+from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track
 from rest_framework.validators import UniqueTogetherValidator
 import re
 from rest_framework import serializers
-
+import time
 
 def multiple_of_five(value):
     if value % 5 != 0:
@@ -237,7 +237,7 @@ class NovelSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'author']
         # include nested data for related models
 
-        # with depth post request is not working 
+        # depth is only for reading/output 
         depth = 1
 
         # Extra customization for individual fields
@@ -305,6 +305,7 @@ class NestedCoordinateSerializer(serializers.Serializer):
     x = serializers.IntegerField(source='x_coordinate')
     y = serializers.IntegerField(source='y_coordinate')
 
+
 class DataPointColorSerializer(serializers.ModelSerializer):
     color = ColorField()
     # coordinates = CoordinateField(source='*')
@@ -325,3 +326,115 @@ class DataPointColorSerializer(serializers.ModelSerializer):
         color_obj = ret['color']
         ret['color'] = {'red': color_obj.red, 'green': color_obj.green, 'blue': color_obj.blue}
         return ret
+    
+
+class TrackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Track
+        fields = ['order', 'title', 'duration']
+
+# Custom relational fields
+# class TrackListingField(serializers.RelatedField):
+#     def to_representation(self, value):
+#         duration = time.strftime('%M:%S', time.gmtime(value.duration))
+#         return 'Track List %d: %s (%s)' % (value.order, value.title, duration)
+
+
+class TrackPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    def display_value(self, instance):
+        # return 'Track List: %d' % (instance.title)
+        return f"Tracks List: {instance.title}"
+    
+# serializer relation 
+class AlbumSerializer(serializers.ModelSerializer):
+# class AlbumSerializer(serializers.HyperlinkedModelSerializer):
+    # tracks = serializers.StringRelatedField(many=True)
+
+    # tracks = serializers.PrimaryKeyRelatedField(
+    #     many=True, 
+    #     # read_only=True,
+    #     queryset=Track.objects.all()
+    # )
+
+    # tracks = serializers.HyperlinkedRelatedField(
+    #     many=True,
+    #     # read_only=True,
+    #     queryset=Track.objects.all(),
+    #     view_name='track-detail'
+    # )
+
+    # tracks = serializers.SlugRelatedField(
+    #     many=True,
+    #     # read_only=False,
+    #     queryset=Track.objects.all(),
+    #     slug_field='title'
+    #  )
+    
+    # track_listing = serializers.HyperlinkedIdentityField(view_name='track-list')
+
+    # tracks = TrackSerializer(many=True)
+
+    # tracks = TrackListingField(many=True, read_only=True)
+
+    tracks = TrackPrimaryKeyRelatedField(
+        many=True, 
+        read_only=True,
+        # queryset=Track.objects.all()
+    )
+
+
+    class Meta:
+        model = Album
+        fields = ['album_name', 'artist', 'tracks']
+        # fields = ['album_name', 'artist', 'track_listing']
+
+    def create(self, validated_data):
+        tracks_data = validated_data.pop('tracks')
+        album = Album.objects.create(**validated_data)
+        for track_data in tracks_data:
+            Track.objects.create(album=album, **track_data)
+        return album
+
+    def update(self, instance, validated_data):
+        tracks_data = validated_data.pop('tracks')
+        print('validated_data', validated_data)
+        # Update album fields
+        instance.album_name = validated_data.get('album_name', instance.album_name)
+        instance.artist = validated_data.get('artist', instance.artist)
+        instance.save()
+        # for attr, value in validated_data.items():
+        #     setattr(instance, attr, value)
+        # instance.save()
+
+        # Delete old tracks and create new ones (simplest way)
+        instance.tracks.all().delete()
+        for track_data in tracks_data:
+            print("track_data", track_data) 
+            Track.objects.create(album=instance, **track_data)
+
+        return instance
+    
+
+
+
+class TrackHyperLinkSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='track-detail',
+        lookup_field='pk'
+    )
+
+    class Meta:
+        model = Track
+        fields = ['url', 'album', 'order', 'title', 'duration']
+
+
+class AlbumHyperLinkSerializer(serializers.ModelSerializer):
+    tracks = serializers.HyperlinkedRelatedField(
+        many=True,
+        queryset=Track.objects.all(),
+        view_name='track-detail'
+    )
+
+    class Meta:
+        model = Album
+        fields = ['url', 'album_name', 'artist', 'tracks']
