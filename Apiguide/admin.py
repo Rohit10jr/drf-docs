@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Book
+from .models import Book, Product
 
 # option 1 = Decorator - not working
 # @admin.register(Book)
@@ -15,6 +15,7 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ('title',)
 
 admin.site.register(Book, BookAdmin)
+admin.site.register(Product)
 
 # option3 = quick default
 # admin.site.register(Book)

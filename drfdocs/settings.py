@@ -37,10 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+  
     'rest_framework',
+    'drf_spectacular',
+    'django_filters',
+
     'quickstart', 
     'snippets', 
-    'Apiguide'
+    'Apiguide', 
+    'ImpTopics',
+    'serializerTopix'
+    
 ]
 
 MIDDLEWARE = [
@@ -143,17 +150,99 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
         # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ], 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5, 
-    'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
-    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata'
+    # 'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
+    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
     # 'DEFAULT_METADATA_CLASS': 'Apiguide.utils.metadata.MinimalMetadata'
     # 'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'myapp.negotiation.IgnoreClientContentNegotiation',
-}
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5, 
+    # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.CustomPageNumberPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.StandardResultsSetPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'Apiguide.utils.pagination.ProductCursorPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
+
+    # versioning
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+    # 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.QueryParameterVersioning',
+    # 'DEFAULT_VERSION': '3.0',
+    # 'ALLOWED_VERSIONS': ['3.0', '4.0'],
+    # 'ALLOWED_VERSIONS': ['v1', 'v2'],
+    # 'VERSION_PARAM': 'v'
+    # 'DEFAULT_VERSION': '1.0',  # Default version if none is provided
+    # 'ALLOWED_VERSIONS': ['1.0', '2.0'],  # Allowed versions
+    # 'VERSION_PARAM': 'v',  # Version query parameter (useful for URLParamVersioning)
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    #      'rest_framework.throttling.ScopedRateThrottle',
+    # ],
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '20/day',     # 100 requests per day for anonymous users
+    #     'user': '20/day',    # 1000 requests per day for authenticated users
+    #     'burst': '5/min',
+    #     'sustained': '20/day',
+    # },
+    # this is for custom throttle class
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'custom_user': '4/day',
+    #     'custom_anon': '2/day',
+    # }
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'posts': '5/day',
+        'comments': '4/day',
+        'likes': '3/day',
+    }, 
+
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #     # 'rest_framework.renderers.JSONRenderer',
+    #     # 'rest_framework.renderers.BrowsableAPIRenderer',
+    # ]
+    
+    # this is required to put and post hyerlink field
+    'DEFAULT_VERSIONING_CLASS': None  # or just leave it unset
+}
 
 
 # settings.py
 from rest_framework.reverse import reverse_lazy
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+
+# ##############################################
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django.request': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }
+ 
+# MIDDLEWARE += ['Apiguide.utils.middleware.ResponseDebugMiddleware']
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
