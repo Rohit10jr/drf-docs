@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView
 
 urlpatterns = [
     # For CBV
@@ -21,6 +21,8 @@ urlpatterns = [
     path('userpro/<int:pk>/', UserProfileDetailAPIView.as_view(), name='userPro'),
     path('novel/', NovelListCreateView.as_view(), name='novel-list-create'),
     path('novel/<int:pk>/', NovelRetrieveUpdateDestroyView.as_view(), name='novel-detail'),
+    path('color/', DataPointColorListCreateView.as_view(), name='color'),
+    path('color/', DataPointColorDetailView.as_view(), name='color'),
 ]
 
 

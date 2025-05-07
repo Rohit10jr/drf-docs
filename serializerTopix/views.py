@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel
-from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, PostSerializer, AccountSerializer, BookSerializer
+from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor
+from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -368,3 +368,13 @@ class NovelRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Novel.objects.all()
     serializer_class = NovelSerializer
     lookup_field = 'pk'
+
+
+class DataPointColorListCreateView(generics.ListCreateAPIView):
+    queryset = DataPointColor.objects.all()
+    serializer_class = DataPointColorSerializer
+
+
+class DataPointColorDetailView(generics.RetrieveUpdateAPIView):
+    queryset = DataPointColor.objects.all()
+    serializer_class = DataPointColorSerializer

@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel
+from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor
 from rest_framework.validators import UniqueTogetherValidator
+import re
+from rest_framework import serializers
 
 
 def multiple_of_five(value):
@@ -153,9 +155,6 @@ class NewsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
-
-
-
 # Custom ListSerializer
 class BookListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
@@ -246,3 +245,83 @@ class NovelSerializer(serializers.ModelSerializer):
             # 'title': {'required': False},           # Make title optional
             # 'title': {'write_only': True}          # Only accept author in input, don't show in output
         # }
+
+
+class Color:
+    def __init__(self, red, green, blue):
+        assert 0 <= red <= 255
+        assert 0 <= red <= 255
+        assert 0 <= red <= 255
+        self.red = red
+        self.green = green
+        self.blue = blue
+
+    def __str__(self):
+        return f"rgb({self.red}, {self.green}, {self.blue})"
+
+
+class ColorField(serializers.Field):
+    default_error_messages = {
+        'incorrect_type': 'Expected a string but got {input_type}.',
+        'incorrect_format': 'Expected `rgb(#,#,#)` format.',
+        'out_of_range': 'Values must be between 0 and 255.',
+    }
+
+    def to_representation(self, value):
+        # Convert Color instance → string
+        return f"rgb({value.red}, {value.green}, {value.blue})"
+
+    def to_internal_value(self, data):
+        if not isinstance(data, str):
+            self.fail('incorrect_type', input_type=type(data).__name__)
+
+        if not re.match(r'^rgb\(\d{1,3},\s?\d{1,3},\s?\d{1,3}\)$', data):
+            self.fail('incorrect_format')
+
+        stripped = data.strip('rgb()')
+        red, green, blue = [int(x.strip()) for x in stripped.split(',')]
+
+        if any(c < 0 or c > 255 for c in (red, green, blue)):
+            self.fail('out_of_range')
+
+        return Color(red, green, blue)
+
+
+class CoordinateField(serializers.Field):
+    def to_representation(self, value):
+        # obj is the full Product instance (because source='*'
+        return {
+            "x": value.x_coordinate,
+            "y": value.y_coordinate
+        }
+
+    def to_internal_value(self, data):
+        return {
+            "x_coordinate": data["x"],
+            "y_coordinate": data["y"]
+        }
+
+class NestedCoordinateSerializer(serializers.Serializer):
+    x = serializers.IntegerField(source='x_coordinate')
+    y = serializers.IntegerField(source='y_coordinate')
+
+class DataPointColorSerializer(serializers.ModelSerializer):
+    color = ColorField()
+    # coordinates = CoordinateField(source='*')
+    coordinates = NestedCoordinateSerializer(source='*')
+
+    class Meta:
+        model = DataPointColor
+        fields = ['id', 'name', 'color', 'label', 'coordinates']
+
+    def to_representation(self, instance):
+        # Convert DB dict → Color instance for ColorField
+        instance.color = Color(**instance.color)
+        return super().to_representation(instance)
+
+    def to_internal_value(self, data):
+        ret = super().to_internal_value(data)
+        # Convert Color instance → dict for DB
+        color_obj = ret['color']
+        ret['color'] = {'red': color_obj.red, 'green': color_obj.green, 'blue': color_obj.blue}
+        return ret

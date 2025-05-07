@@ -72,3 +72,14 @@ class Author(models.Model):
 class Novel(models.Model):
     title = models.CharField(max_length=100)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+
+class DataPointColor(models.Model):
+    name = models.CharField(max_length=100)
+    color = models.JSONField(null=True)
+    label = models.CharField(max_length=50)
+    x_coordinate = models.SmallIntegerField(null=True)
+    y_coordinate = models.SmallIntegerField(null=True)
+
+    def __str__(self):
+        return f"{self.name} {self.label}"
