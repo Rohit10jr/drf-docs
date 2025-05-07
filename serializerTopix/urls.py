@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet
 
 
 router = DefaultRouter()
@@ -10,6 +10,8 @@ router.register(r'accounts', AccountViewSet)
 router.register(r'userprofile', UserProfileViewset)
 router.register(r'albumviewset', AlbumViewSet)
 router.register(r'tracks', TrackViewSet, basename='track')
+router.register(r'techarticle', TechArticleViewSet)
+router.register(r'billing', BillingRecordViewSet)
 
 urlpatterns = [
     # For CBV

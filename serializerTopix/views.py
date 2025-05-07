@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track
-from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer, AlbumSerializer, TrackSerializer, TrackHyperLinkSerializer, AlbumHyperLinkSerializer
+from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track, TechArticle, BillingRecord
+from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer, AlbumSerializer, TrackSerializer, TrackHyperLinkSerializer, AlbumHyperLinkSerializer, TechArticleSerializer, BillingRecordSerializer
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-
+from rest_framework import viewsets, permissions
 # Create your views here.
 
 # class Comment:
@@ -407,3 +407,13 @@ class TrackViewSet(viewsets.ModelViewSet):
     serializer_class = TrackHyperLinkSerializer
 
 
+# validators
+class TechArticleViewSet(viewsets.ModelViewSet):
+    queryset = TechArticle.objects.all()
+    serializer_class = TechArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BillingRecordViewSet(viewsets.ModelViewSet):
+    queryset = BillingRecord.objects.all()
+    serializer_class = BillingRecordSerializer

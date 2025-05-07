@@ -1,9 +1,11 @@
 from rest_framework import serializers
-from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track
+from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track, TechArticle, BillingRecord
 from rest_framework.validators import UniqueTogetherValidator
 import re
 from rest_framework import serializers
 import time
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator, UniqueForDateValidator, UniqueForMonthValidator, UniqueForYearValidator
+
 
 def multiple_of_five(value):
     if value % 5 != 0:
@@ -438,3 +440,81 @@ class AlbumHyperLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
         fields = ['url', 'album_name', 'artist', 'tracks']
+
+
+
+# vaildators
+class TechArticleSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(
+        validators=[UniqueValidator(queryset=TechArticle.objects.all())]
+    )
+    author = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = TechArticle
+        fields = ['title', 'slug', 'category', 'position', 'published', 'author']
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=TechArticle.objects.all(),
+                fields=['category', 'position'],
+                message="This position is already taken in this category."
+            ),
+            UniqueForDateValidator(
+                queryset=TechArticle.objects.all(),
+                field='slug',
+                date_field='published',
+                message="Slug must be unique per day."
+            ),
+            UniqueForMonthValidator(
+                queryset=TechArticle.objects.all(),
+                field='slug',
+                date_field='published',
+                message="Slug must be unique per month."
+            ),
+            UniqueForYearValidator(
+                queryset=TechArticle.objects.all(),
+                field='slug',
+                date_field='published',
+                message="Slug must be unique per year."
+            ),
+        ]
+
+# custom validators
+def positive_amount(value):
+    print("positive_amt validator")
+    if value <= 0:
+        raise serializers.ValidationError('Amount must be positive.')
+
+class MultipleOf:
+    def __init__(self, base):
+        self.base = base
+
+    def __call__(self, value):
+        print("class validator")
+        if value % self.base != 0:
+            raise serializers.ValidationError(f'Must be a multiple of {self.base}')
+
+class BillingRecordSerializer(serializers.ModelSerializer):
+    amount = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[positive_amount, MultipleOf(10)]
+    )
+
+    def validate(self, attrs):
+        print("custom validation")
+        client = attrs.get('client')
+        date = attrs.get('date')
+        if client and date:
+            if BillingRecord.objects.filter(client=client, date=date).exists():
+                raise serializers.ValidationError('This client already has a record for this date.')
+        return attrs
+
+    class Meta:
+        model = BillingRecord
+        fields = ['client', 'date', 'amount']
+        extra_kwargs = {'client': {'required': False}}
+        validators = []

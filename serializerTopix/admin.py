@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Comments, TempUser, Account, Category, News, Book, UserProfile, Author, Novel, DataPointColor, Track, Album
+from .models import Comments, TempUser, Account, Category, News, Book, UserProfile, Author, Novel, DataPointColor, Track, Album, BillingRecord,TechArticle
 # Register your models here.
 
 admin.site.register(Comments)
@@ -14,3 +14,5 @@ admin.site.register(Author)
 admin.site.register(DataPointColor)
 admin.site.register(Album)
 admin.site.register(Track)
+admin.site.register(BillingRecord)
+admin.site.register(TechArticle)

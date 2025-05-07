@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class TempUser(models.Model):
     email = models.EmailField()
@@ -102,3 +102,26 @@ class Track(models.Model):
 
     def __str__(self):
         return '%d: %s' % (self.order, self.title)
+    
+
+
+# validators
+class TechArticle(models.Model):
+    title = models.CharField(max_length=100, unique=True)  # Will still use UniqueValidator in serializer
+    slug = models.SlugField(max_length=100)
+    category = models.CharField(max_length=50)
+    position = models.PositiveIntegerField()
+    published = models.DateField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('category', 'position')  # DB-level; we'll enforce at serializer too
+
+    def __str__(self):
+        return self.title
+    
+
+class BillingRecord(models.Model):
+    client = models.CharField(max_length=50, null=True, blank=True)
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
