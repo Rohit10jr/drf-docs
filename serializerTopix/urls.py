@@ -1,8 +1,10 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet, ExampleBasicAuthView, ExampleTokenAuthView, CustomAuthToken, register_user, custom_login
 
+# built-in routes for login, logout, and password management, but not for registration by default.
+from django.contrib.auth import views as auth_views
 
 router = DefaultRouter()
 
@@ -37,6 +39,13 @@ urlpatterns = [
     path('album/<int:pk>/', AlbumDetailView.as_view(), name='album-detail'),
     path('track/', TrackListCreateView.as_view(), name='track-list'),
     path('album/<int:pk>/', TrackDetailView.as_view(), name='track-detail'),
+    path('basic/', ExampleBasicAuthView.as_view(), name='basic-auth'),
+    path('token/', ExampleTokenAuthView.as_view(), name='token-auth'),
+    path('register/', register_user, name='register'),
+    path('login/', custom_login, name='register'),
+
+    path('api-token-auth/', CustomAuthToken.as_view()),
+    path('account/', include('django.contrib.auth.urls')),
 
     path('', include(router.urls)),
 ]

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Comments, TempUser, Account, Category, News, Book, UserProfile, Author, Novel, DataPointColor, Track, Album, BillingRecord,TechArticle
+
 # Register your models here.
 
 admin.site.register(Comments)
@@ -16,3 +17,8 @@ admin.site.register(Album)
 admin.site.register(Track)
 admin.site.register(BillingRecord)
 admin.site.register(TechArticle)
+
+
+from rest_framework.authtoken.admin import TokenAdmin
+
+TokenAdmin.raw_id_fields = ['user']
