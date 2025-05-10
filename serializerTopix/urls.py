@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet, ExampleBasicAuthView, ExampleTokenAuthView, CustomAuthToken, register_user, custom_login
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet, ExampleBasicAuthView, ExampleTokenAuthView, CustomAuthToken, register_user, custom_login, PermView, PermPostViewSet, PermPostViewSet2, PermSpecialView, RestrictPostViewSet, ExampleView
 
 # built-in routes for login, logout, and password management, but not for registration by default.
 from django.contrib.auth import views as auth_views
@@ -14,6 +14,8 @@ router.register(r'albumviewset', AlbumViewSet)
 router.register(r'tracks', TrackViewSet, basename='track')
 router.register(r'techarticle', TechArticleViewSet)
 router.register(r'billing', BillingRecordViewSet)
+router.register(r'permcheck2', PermPostViewSet2)
+router.register(r'restrict', RestrictPostViewSet)
 
 urlpatterns = [
     # For CBV
@@ -46,6 +48,10 @@ urlpatterns = [
 
     path('api-token-auth/', CustomAuthToken.as_view()),
     path('account/', include('django.contrib.auth.urls')),
+    path('perm/', PermView.as_view()),
+    path('permcheck/', PermPostViewSet.as_view()),
+    path('permspecial/', PermSpecialView.as_view()),
+    path('example/', ExampleView.as_view()),
 
     path('', include(router.urls)),
 ]

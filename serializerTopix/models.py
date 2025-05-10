@@ -137,3 +137,9 @@ class BillingRecord(models.Model):
 # def create_auth_token(sender, instance=None, created=False, **kwargs):
 #     if created:
 #         Token.objects.create(user=instance)
+
+
+class Docs(models.Model):
+    title = models.CharField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+

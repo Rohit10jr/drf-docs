@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import Comments, TempUser, Account, Category, News, Book, UserProfile, Author, Novel, DataPointColor, Track, Album, BillingRecord,TechArticle
+from .models import Comments, TempUser, Account, Category, News, Book, UserProfile, Author, Novel, DataPointColor, Track, Album, BillingRecord,TechArticle, Docs
+from .models import Comments, TempUser, Account, Category, News, Book, UserProfile, Author, Novel, DataPointColor, Track, Album, BillingRecord,TechArticle, Docs
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
 # Register your models here.
 
@@ -17,8 +21,19 @@ admin.site.register(Album)
 admin.site.register(Track)
 admin.site.register(BillingRecord)
 admin.site.register(TechArticle)
+admin.site.register(Docs)
+
+# class CustomUserAdmin(UserAdmin):
+#     list_display = ['id', 'username', 'email', 'is_staff', 'is_superuser']
+#     list_display = ['id'] + list(DefaultUserAdmin.list_display)
 
 
-from rest_framework.authtoken.admin import TokenAdmin
+class CustomUserAdmin(DefaultUserAdmin):
+    # Add 'id' to the list display
+    list_display = ['id'] + list(DefaultUserAdmin.list_display)
 
-TokenAdmin.raw_id_fields = ['user']
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+# from rest_framework.authtoken.admin import TokenAdmin
+
+# TokenAdmin.raw_id_fields = ['user']

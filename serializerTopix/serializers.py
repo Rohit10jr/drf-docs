@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track, TechArticle, BillingRecord
+from .models import Comments, TempUser, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track, TechArticle, BillingRecord, Docs
 from rest_framework.validators import UniqueTogetherValidator
 import re
 from rest_framework import serializers
 import time
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator, UniqueForDateValidator, UniqueForMonthValidator, UniqueForYearValidator
+from .models import Post, Reaction
 
 
 def multiple_of_five(value):
@@ -87,8 +88,6 @@ class CommentModelSerializer(serializers.ModelSerializer):
 
 # serializers.py
 
-from rest_framework import serializers
-from .models import Post, Reaction
 
 class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -122,6 +121,13 @@ class PostSerializer(serializers.ModelSerializer):
             comment.save()
 
         return instance
+
+
+class SimplePostSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = ['title', 'body']
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -549,3 +555,9 @@ class AuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class DocsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Docs
+        fields = ['title', 'author']
