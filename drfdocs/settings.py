@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
   
     'rest_framework',
+    'rest_framework.authtoken',
     'drf_spectacular',
     'django_filters',
 
@@ -148,6 +149,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.IsAuthenticated',
         # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ], 
     # 'EXCEPTION_HANDLER': 'Apiguide.utils.custom_exception_handler.custom_exception_handler', 
@@ -202,6 +204,10 @@ REST_FRAMEWORK = {
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
+    #   'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework.authentication.TokenAuthentication',
+    # ),
+
     # 'DEFAULT_RENDERER_CLASSES': [
     #     # 'rest_framework.renderers.JSONRenderer',
     #     # 'rest_framework.renderers.BrowsableAPIRenderer',
@@ -246,3 +252,19 @@ CACHES = {
         }
     }
 }
+
+
+
+# Where to redirect users after login
+LOGIN_REDIRECT_URL = '/'  # or '/home/' or any view you want
+
+# Where to redirect if login is required and user is not logged in
+LOGIN_URL = '/api/accounts/login/'
+
+# Optional but good practice
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+AUTHENTICATION_BACKENDS = [
+    'serializerTopix.auth_backends.EmailBackend',  # replace 'yourapp' with your actual app name
+    'django.contrib.auth.backends.ModelBackend',  # keep default to allow admin login
+]

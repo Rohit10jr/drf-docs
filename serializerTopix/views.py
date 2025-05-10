@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track
-from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer, AlbumSerializer, TrackSerializer, TrackHyperLinkSerializer, AlbumHyperLinkSerializer
+from .models import Comments, Post, Account, News, Category, Book, UserProfile, Novel, DataPointColor, Album, Track, TechArticle, BillingRecord, Docs
+from .serializers import CommentSerializer, NewsSerializer, CommentModelSerializer, UserProfileSerializer, NovelSerializer, DataPointColorSerializer, PostSerializer, AccountSerializer, BookSerializer, AlbumSerializer, TrackSerializer, TrackHyperLinkSerializer, AlbumHyperLinkSerializer, TechArticleSerializer, SimplePostSerializer, BillingRecordSerializer, AuthTokenSerializer, DocsSerializer
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -13,6 +13,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, permissions
+
+from rest_framework.permissions import BasePermission
+from rest_framework.exceptions import PermissionDenied
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+
+
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
+import json
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, SAFE_METHODS, AllowAny
 
 # Create your views here.
 
@@ -407,3 +427,193 @@ class TrackViewSet(viewsets.ModelViewSet):
     serializer_class = TrackHyperLinkSerializer
 
 
+# validators
+class TechArticleViewSet(viewsets.ModelViewSet):
+    queryset = TechArticle.objects.all()
+    serializer_class = TechArticleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BillingRecordViewSet(viewsets.ModelViewSet):
+    queryset = BillingRecord.objects.all()
+    serializer_class = BillingRecordSerializer
+
+
+
+# auth token
+class ExampleBasicAuthView(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            'message': 'Hello with BasicAuth!',
+            'user': str(request.user),
+            'auth': str(request.auth),
+        })
+
+# Token a86c9a0c7a8b6d250785f7e4aa6b95e659a85fd2
+class ExampleTokenAuthView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            'message': 'Hello with TokenAuth!',
+            'user': str(request.user),
+            'auth': str(request.auth),
+        })
+
+
+@csrf_exempt  
+def register_user(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password are required.'}, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'error': 'Username already taken.'}, status=400)
+
+        user = User(username=username, email=email)
+        user.set_password(password)
+        user.save()
+
+        # token = Token.objects.create(user=user)
+        # token = Token.objects.get(user=user)
+        token, created = Token.objects.get_or_create(user=user)
+
+        return JsonResponse({
+            'message': 'User registered successfully.', 
+            'token': token.key  
+                }, status=201)
+
+    return JsonResponse({'error': 'Only POST method allowed.'}, status=405)
+
+
+@csrf_exempt  # ONLY for testing, use CSRF token in production
+def custom_login(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return JsonResponse({'error': 'Email and password are required.'}, status=400)
+
+        user = authenticate(request, userid=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'message': 'Login successful'})
+        else:
+            return JsonResponse({'error': 'Invalid credentials'}, status=401)
+
+    return JsonResponse({'error': 'Only POST allowed'}, status=405)
+
+
+
+
+class CustomAuthToken(ObtainAuthToken):
+    authentication_classes = [TokenAuthentication]
+    serializer_class = AuthTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })
+
+
+
+#  1. Basic view-level permission: only authenticated users
+class PermView(APIView):
+    # permission_classes = [IsAdminUser]
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        # return Response({'message': 'Hello, unauthenticated user'})
+        return Response({'message': f'Hello, {request.user.username}!'})
+
+# 2. Allow read for everyone, but write only for authenticated users
+# @method_decorator(csrf_exempt, name='dispatch')
+class PermPostViewSet(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = SimplePostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+   
+# 3. Custom object-level permission: allow only the owner to edit
+class IsOwner(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Assumes the object has an `owner` field
+        return obj.author == request.user
+
+class PermPostViewSet2(viewsets.ModelViewSet):
+    queryset = Docs.objects.all()
+    serializer_class = DocsSerializer
+    permission_classes = [IsOwner]
+    
+    def get_object(self):
+        obj = super().get_object()
+        self.check_object_permissions(self.request, obj)
+        return obj
+    
+    # def get_queryset(self):
+        # return Post.objects.filter(owner=self.request.user)
+
+
+# 4. Combining permissions (OR logic) using custom class
+class IsAuthenticatedOrAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return IsAuthenticated().has_permission(request, view) or IsAdminUser().has_permission(request, view)
+    
+class PermSpecialView(APIView):
+    permission_classes = [IsAuthenticatedOrAdmin]
+
+    def get(self, request):
+        return Response({'message': 'You are allowed!'})
+
+
+# 5. Restrict create (POST) action using perform_create()
+class RestrictPostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = SimplePostSerializer
+
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied('Login required to create a post.')
+        serializer.save(owner=self.request.user)
+
+
+# 6. Combine permissions with operators (&, |, ~)
+class ReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS
+
+class ExampleView(APIView):
+    permission_classes = [IsAuthenticated | ReadOnly]
+
+    def get(self, request):
+        return Response({'message': 'Allowed'})
+    
+
+# testing
+class TestDocsViewSet(viewsets.ModelViewSet):
+    queryset = Docs.objects.all()
+    serializer_class = DocsSerializer
