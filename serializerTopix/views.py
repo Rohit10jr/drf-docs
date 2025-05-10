@@ -19,6 +19,21 @@ from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+
+
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
+import json
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, SAFE_METHODS, AllowAny
+
 # Create your views here.
 
 # class Comment:
@@ -426,9 +441,6 @@ class BillingRecordViewSet(viewsets.ModelViewSet):
 
 
 # auth token
-from rest_framework.authentication import BasicAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, SAFE_METHODS, AllowAny
-
 class ExampleBasicAuthView(APIView):
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
@@ -452,12 +464,6 @@ class ExampleTokenAuthView(APIView):
             'auth': str(request.auth),
         })
 
-
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
-import json
 
 @csrf_exempt  
 def register_user(request):
@@ -515,10 +521,6 @@ def custom_login(request):
     return JsonResponse({'error': 'Only POST allowed'}, status=405)
 
 
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -609,3 +611,9 @@ class ExampleView(APIView):
 
     def get(self, request):
         return Response({'message': 'Allowed'})
+    
+
+# testing
+class TestDocsViewSet(viewsets.ModelViewSet):
+    queryset = Docs.objects.all()
+    serializer_class = DocsSerializer

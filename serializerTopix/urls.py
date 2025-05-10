@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet, ExampleBasicAuthView, ExampleTokenAuthView, CustomAuthToken, register_user, custom_login, PermView, PermPostViewSet, PermPostViewSet2, PermSpecialView, RestrictPostViewSet, ExampleView
+from .views import AccountViewSet, UserProfileViewset, UserProfileApiview,UserProfileDetailAPIView , NovelRetrieveUpdateDestroyView, NovelListCreateView, DataPointColorListCreateView, DataPointColorDetailView, AlbumListCreateView, AlbumDetailView,  TrackListCreateView, TrackDetailView, AlbumViewSet, TrackViewSet, TechArticleViewSet, BillingRecordViewSet, ExampleBasicAuthView, ExampleTokenAuthView, CustomAuthToken, register_user, custom_login, PermView, PermPostViewSet, PermPostViewSet2, PermSpecialView, RestrictPostViewSet, ExampleView, TestDocsViewSet
 
 # built-in routes for login, logout, and password management, but not for registration by default.
 from django.contrib.auth import views as auth_views
@@ -16,6 +16,7 @@ router.register(r'techarticle', TechArticleViewSet)
 router.register(r'billing', BillingRecordViewSet)
 router.register(r'permcheck2', PermPostViewSet2)
 router.register(r'restrict', RestrictPostViewSet)
+router.register(r'testdocs', TestDocsViewSet, basename='test-docs')
 
 urlpatterns = [
     # For CBV
