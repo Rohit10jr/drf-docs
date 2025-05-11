@@ -1,8 +1,8 @@
-﻿# Django REST Framework – API Guide Practice
+﻿# Django REST Framework – Practice
 
 This repository contains my topic-wise practice based on the **Django REST Framework API Guide**. Each commit corresponds to a specific concept, reflecting examples and tests implemented while learning.
 
-## 📚 Topics Covered
+## 📚 ApiGuide Topics Covered
 
 - API Guide  
 - Requests & Responses  
