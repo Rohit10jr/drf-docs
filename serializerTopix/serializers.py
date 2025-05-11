@@ -504,26 +504,26 @@ class MultipleOf:
             raise serializers.ValidationError(f'Must be a multiple of {self.base}')
 
 class BillingRecordSerializer(serializers.ModelSerializer):
-    amount = serializers.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[positive_amount, MultipleOf(10)]
-    )
+    # amount = serializers.DecimalField(
+    #     max_digits=10,
+    #     decimal_places=2,
+    #     validators=[positive_amount, MultipleOf(10)]
+    # )
 
-    def validate(self, attrs):
-        print("custom validation")
-        client = attrs.get('client')
-        date = attrs.get('date')
-        if client and date:
-            if BillingRecord.objects.filter(client=client, date=date).exists():
-                raise serializers.ValidationError('This client already has a record for this date.')
-        return attrs
+    # def validate(self, attrs):
+    #     print("custom validation")
+    #     client = attrs.get('client')
+    #     date = attrs.get('date')
+    #     if client and date:
+    #         if BillingRecord.objects.filter(client=client, date=date).exists():
+    #             raise serializers.ValidationError('This client already has a record for this date.')
+    #     return attrs
 
     class Meta:
         model = BillingRecord
         fields = ['client', 'date', 'amount']
-        extra_kwargs = {'client': {'required': False}}
-        validators = []
+        # extra_kwargs = {'client': {'required': False}}
+        # validators = []
 
 
 
